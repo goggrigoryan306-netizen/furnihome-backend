@@ -13,7 +13,6 @@ import orderRoutes from "./routes/orderRoutes.js";
 
 const app = express();
 
-
 // ===============================
 // CORS
 // ===============================
@@ -22,12 +21,18 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
+      "http://localhost:5174",
       "http://192.168.1.6:5173",
     ],
     credentials: true,
   })
 );
 
+// ===============================
+// JSON
+// ===============================
+
+app.use(express.json());
 
 // ===============================
 // UPLOAD
@@ -36,68 +41,44 @@ app.use(
 app.use(
   "/upload",
   express.static(
-    path.join(
-      process.cwd(),
-      "upload"
-    )
+    path.join(process.cwd(), "upload")
   )
 );
-
-
-// ===============================
-// JSON
-// ===============================
-
-app.use(express.json());
-
 
 // ===============================
 // ROUTES
 // ===============================
 
-app.use(
-  "/api/auth",
-  authRoutes
-);
-
-app.use(
-  "/api/products",
-  productRoutes
-);
-
-app.use(
-  "/api/comments",
-  commentRoutes
-);
-
-app.use(
-  "/api/orders",
-  orderRoutes
-);
-
+app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/comments", commentRoutes);
+app.use("/api/orders", orderRoutes);
 
 // ===============================
-// MONGODB + SERVER
+// MONGODB
 // ===============================
 
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB connected");
-
-    app.listen(
-      process.env.PORT,
-      "0.0.0.0",
-      () => {
-        console.log(
-          `Server running on port ${process.env.PORT}`
-        );
-      }
-    );
   })
   .catch((error) => {
-    console.log(
-      "MongoDB error:",
-      error
-    );
+    console.log("MongoDB error:", error);
   });
+
+// ===============================
+// TEST
+// ===============================
+
+app.get("/", (req, res) => {
+  res.json({
+    message: "FurniHome Backend is working!",
+  });
+});
+
+// ===============================
+// VERCEL
+// ===============================
+
+export default app;
